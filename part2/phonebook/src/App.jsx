@@ -47,12 +47,23 @@ const Person = ({ person, deletePerson }) => {
   )
 }
 
+const Notification = ({ message }) => {
+  if (message === null)
+    return null
+
+  return (
+    <div className='error'>
+      {message}
+    </div>
+  )
+}
+
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
-
   const [search, setSearch] = useState('')
+  const [confirmationMessage, setConfirmationMessage] = useState(null)
 
   useEffect(() => {
     personService
@@ -79,8 +90,14 @@ const App = () => {
         .create(personObject)
         .then(returnedPerson => {
           setPersons(persons.concat(returnedPerson))
+
           setNewName('')
           setNewNumber('')
+
+          setConfirmationMessage(`Added ${returnedPerson.name}`)
+          setTimeout(() => {
+            setConfirmationMessage(null)
+          }, 5000)
         })
   }
 
@@ -128,8 +145,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={confirmationMessage} />
       <Filter search={search} handleSearchChange={handleSearchChange} />
-
       <h3>Add a new</h3>
       <PersonForm
         onSubmit={addPerson}
@@ -138,7 +155,6 @@ const App = () => {
         newNumber={newNumber}
         handleNumberChange={handleNumberChange}
       />
-
       <h3>Numbers</h3>
       <Persons persons={personsToShow} deletePerson={deletePerson} />
     </div>
