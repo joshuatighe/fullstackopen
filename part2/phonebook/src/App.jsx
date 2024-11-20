@@ -47,12 +47,23 @@ const Person = ({ person, deletePerson }) => {
   )
 }
 
-const Notification = ({ message }) => {
+const ConfirmationNotification = ({ message }) => {
   if (message === null)
     return null
 
   return (
-    <div className='error'>
+    <div className='notification confirmation'>
+      {message}
+    </div>
+  )
+}
+
+const ErrorNotification = ({ message }) => {
+  if (message === null)
+    return null
+
+  return (
+    <div className='notification error'>
       {message}
     </div>
   )
@@ -64,6 +75,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [search, setSearch] = useState('')
   const [confirmationMessage, setConfirmationMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
     personService
@@ -123,6 +135,15 @@ const App = () => {
         .then(returnedPerson => {
           setPersons(persons.map(p => p.id === id ? returnedPerson : p))
         })
+        .catch(() => {
+          setErrorMessage(
+            `Information of ${person.name} has already been removed from the server`
+          )
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
+          setPersons(persons.filter(p => p.id !== id))
+        })
 
       setNewName('')
       setNewNumber('')
@@ -145,7 +166,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={confirmationMessage} />
+      <ConfirmationNotification message={confirmationMessage} />
+      <ErrorNotification message={errorMessage} />
       <Filter search={search} handleSearchChange={handleSearchChange} />
       <h3>Add a new</h3>
       <PersonForm
